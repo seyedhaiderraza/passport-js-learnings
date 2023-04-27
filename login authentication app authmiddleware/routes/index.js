@@ -2,6 +2,7 @@ const router = require('express').Router();
 const passport = require('passport')
 const { genPassword } = require('../utils/passwordGenValidate');
 const { connection, mongoose } = require('../config/database');
+const { isAuth } = require('./authMiddleware');
 const User = connection.models.User
     //----------------------create User Schema mongodb--------------//
 
@@ -67,23 +68,9 @@ router.get('/login', (req, res, next) => {
         res.send(form)
     })
     //post authentication page
-router.get('/protected-route', (req, res, next) => {
+router.get('/protected-route', isAuth, (req, res, next) => {
 
-        if (req.isAuthenticated()) {
-            res.send(
-                `
-            <h1>You are Authenticated</h1>
-            <p><a href="/logout">Logout and reload</p>
-            `
-            )
-        } else {
-            res.send(
-                `
-            <h1>You are not Authenticated</h1>
-            <p><a href="/login">Login Again</p>
-            `
-            )
-        }
+        res.send('you are authenticated')
     })
     /*-----------post authentication routes-------------*/
     //post logout
