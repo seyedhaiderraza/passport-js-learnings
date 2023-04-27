@@ -1,12 +1,12 @@
 const express = require('express')
-const expressSesson = require('express-session')
+const expressSession = require('express-session')
 const MongoStore = require('connect-mongo')(expressSession)
 
 var passport = require('passport')
 var crypto = require('crypto')
 
-var connection = require('./config/database')
-var routes = require('./routes')
+const { connection, mongoose } = require('./config/database')
+
 
 /*
 --------------------express app & middleware Setup----------------
@@ -20,12 +20,14 @@ app.use(express.urlencoded({ extended: true }))
 
 //----------------------express session setup----------------------
 
+
+
 const sessionStore = new MongoStore({
     mongooseConnection: connection,
     collection: 'sessions'
 })
 
-app.use(expressSesson({
+app.use(expressSession({
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
@@ -37,7 +39,15 @@ app.use(expressSesson({
 
 //------------------passport authentication------------//
 require('./config/passport')
-    //------------------routes------------------------------//
+
+app.use(passport.initialize())
+    //initialise passport middleware
+    //already configured in passportjs using localstrategy->using
+    // verifycallback and customfield
+app.use(passport.session())
+    //session()->session object used to authenticate returned user
+
+//------------------routes------------------------------//
 var routes = require('./routes')
 app.use(routes)
 
