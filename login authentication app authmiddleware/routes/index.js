@@ -2,7 +2,7 @@ const router = require('express').Router();
 const passport = require('passport')
 const { genPassword } = require('../utils/passwordGenValidate');
 const { connection, mongoose } = require('../config/database');
-const { isAuth } = require('./authMiddleware');
+const { isAuth, isAdmin } = require('./authMiddleware');
 const User = connection.models.User
     //----------------------create User Schema mongodb--------------//
 
@@ -23,11 +23,12 @@ router.post('/register', (req, res, next) => {
     const newUser = new User({
         username: req.body.uname,
         hash: genHash,
-        salt: salt
+        salt: salt,
+        isAdmin: true
     })
     newUser.save()
         .then((user) => {
-            console.log(user);
+            (user);
             res.redirect('/login')
         })
 })
@@ -36,14 +37,12 @@ router.post('/register', (req, res, next) => {
 
 //HomePage 
 router.get('/', (req, res, next) => {
-    console.log('inside homepage');
+
     res.send('<h1>Welcome to Login/Register Page</h1><br/>Please <a href="/register">Register</a>')
-    console.log('inside homepage>>>res.send complete');
 })
 
 router.get('/register', (req, res, next) => {
 
-    console.log('inside register route');
     const form = `<h1>Register Page</h1><form method="POST" action="/register">
                         Enter Username:<br><input type="text" name="uname">
                         <br>Enter Password:<br><input type="password" name="pw">
@@ -70,7 +69,11 @@ router.get('/login', (req, res, next) => {
     //post authentication page
 router.get('/protected-route', isAuth, (req, res, next) => {
 
-        res.send('you are authenticated')
+    res.send('you are authenticated')
+})
+router.get('/admin-route', isAdmin, (req, res, next) => {
+
+        res.send('you are admin')
     })
     /*-----------post authentication routes-------------*/
     //post logout

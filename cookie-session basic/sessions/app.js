@@ -79,7 +79,7 @@ app.use(expresssession({
 // Define routes
 app.get('/', async(req, res) => {
     try {
-        console.log(req.session);
+        (req.session);
         //can access session object coming from request as cookie can also manipulate
         if (req.session.viewCount) {
             req.session.viewCount += 1
@@ -98,9 +98,9 @@ app.get('/', async(req, res) => {
         // });
 
         // Save the document to MongoDB
-        console.log("hello")
-            //  await sample.save();
-        console.log("bye")
+
+        //  await sample.save();
+
 
         res.send(`<h1>visited this page ${req.session.viewCount} times </h1>`);
     } catch (err) {

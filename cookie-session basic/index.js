@@ -3,7 +3,7 @@ const express = require('express')
 const app = new express()
 
 const middleware1 = (req, res, next) => {
-    console.log('i am middleware1');
+
     const errorObj = new Error('this is error')
     req.customProperty({})
     next(errorObj)
