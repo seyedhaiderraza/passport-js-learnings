@@ -12,7 +12,6 @@ const customFields = {
     //vfcb first verifies if user exists in db or not using username, password 
 const verifyCallback = (username, password, cb) => {
 
-        console.log('inside verifyCallback');
         //username,password, callback mandatory params with same name
         User.findOne({ username: username }) //mongodb find user w username
             .then((user) => {
@@ -27,7 +26,7 @@ const verifyCallback = (username, password, cb) => {
 
             })
             .catch(err => {
-                cb(err) //cb is passport callback it will handle error passed itself
+                return cb(err) //cb is passport callback it will handle error passed itself
             })
 
     }
@@ -36,22 +35,48 @@ const strategy = new LocalStrategy(customFields, verifyCallback)
 
 passport.use(strategy);
 //serialize user object into session login
-passport.serializeUser(function(user, cb) {
-    console.log('inside serializeuser');
-    process.nextTick(function() {
-        return cb(null, {
-            id: user.id,
-            username: user.username,
-            picture: user.picture
+passport.serializeUser((user, cb) => {
+    cb(null, user.id)
+        /*
+        function(user, cb) {
+
+        process.nextTick(function() {
+            return cb(null, {
+                id: user.id,
+                username: user.username,
+                picture: user.picture
+            });
         });
-    });
+        */
 });
 //deserialize user object out of session logout
-passport.deserializeUser(function(user, cb) {
-
-    console.log('inside de-serializeuser');
-    process.nextTick(function() {
-        return cb(null, user);
-    });
+passport.deserializeUser((userId, cb) => {
+    /* function(userId, cb) {
+     default provided by passport
+         process.nextTick(function() {
+             return cb(null, user);
+         });
+         */
+    //custom deserliase
+    User.findById(userId)
+        .then(user => {
+            cb(null, user)
+        })
+        .catch(err => cb(err))
 });
-passport.use(strategy)
+/*
+In the serializeUser() function,
+ cb(null, user.id) is called to serialize the user object
+  and store it in the session. 
+  When cb(null, user.id) is called, 
+  the passport module takes over the control flow 
+  and continues with the authentication process.
+
+In the deserializeUser() function, 
+cb(null, user) is called to deserialize the user object
+ from the session. When cb(null, user) is called, 
+ the passport module takes over the control flow and
+  continues with the authentication process, 
+  passing the deserialized user object to the 
+  next middleware or route handler.
+*/
